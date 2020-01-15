@@ -24,7 +24,7 @@ def users():
 @app.route('/getUser/', methods=['POST'])
 def getUser():
     user = User(request.json)
-    found = User(get_session().query(User).filter_by(login = user.login).first())
+    found = get_session().query(User).filter_by(login = user.login).first()
     if found != None:
         salted = generate_salted_hash(user.password, found.salt)
         if salted == found.password:
@@ -38,25 +38,56 @@ def createUser():
     user.password = generate_salted_hash(user.password, user.salt)
     session = get_session()
     session.add(user)
-    user.id = User(session.query(User).filter_by(login = user.login).first()).id
+    user.id = session.query(User).filter_by(login = user.login).first().id
     session.flush()
     return json.dumps(user.to_dict())
     
 @app.route('/userNotes/', methods=['POST'])
 def userNotes():
-    return "Not implemented" 
+    user = User(request.json)
+    result = get_session().query(Note).filter_by(userId = user.id).all() 
+    response = []
+    if len(result) > 0:
+        for n in result:
+            response.append(n.to_dict())
+    return json.dumps(response)
     
 @app.route('/createNote/', methods=['POST'])
 def createNote():
-    return "Not implemented" 
+    note = Note(request.json)
+    session = get_session()
+    lastNote = session.guery(Note).odrer_by(Note.noteId).last()
+    note.id = 1 if lastNote == None else lastNote.id + 1
+    session.add(note)
+    session.flush()
+    return json.dumps(note.to_dict())
     
 @app.route('/saveNote/', methods=['POST'])
 def saveNote():
-    return "Not implemented" 
+    note = Note(request.json)
+    session = get_session()
+    found = session.guery(Note).filter_by(noteId = note.noteId).first()
+    if found != None:
+        found.masterNoteId = note.masterNoteId
+        found.taskId = note.taskId
+        found.title = note.title
+        found.noteText = note.noteText
+        found.creationDate = note.creationDate
+        found.editionDate = note.editionDate
+        session.flush()
+        return True
+    return False
     
 @app.route('/deleteNotes/', methods=['POST'])
 def deleteNotes():
-    return "Not implemented" 
+    session = get_session()
+    for n in request.json:
+        note = Note(n)
+        found = session.guery(Note).filter_by(noteId = note.noteId).first()
+        if found != None:
+            session.delete(found)
+    session.flush()
+    return True
     
 @app.route('/userTasks/', methods=['POST'])
 def usertasks():

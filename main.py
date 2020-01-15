@@ -23,7 +23,7 @@ def users():
 
 @app.route('/getUser/', methods=['POST'])
 def getUser():
-    user = User(request.json)
+    user = User.get(request.json)
     found = get_session().query(User).filter_by(login = user.login).first()
     if found != None:
         salted = generate_salted_hash(user.password, found.salt)
@@ -33,7 +33,7 @@ def getUser():
     
 @app.route('/createUser/', methods=['POST'])
 def createUser():
-    user = User(request.json)
+    user = User.get(request.json)
     user.salt = get_salt()
     user.password = generate_salted_hash(user.password, user.salt)
     session = get_session()

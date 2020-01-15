@@ -1,18 +1,12 @@
-import psycopg2
-import flask
-import flask
-import json
 from flask import Flask
-from sqlalchemy import Column, Integer, String
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import scoped_session, sessionmaker, backref, relation
+from User import User
+from DBContext import get_session
 
 app = Flask(__name__)
     
 @app.route('/users/', methods=['GET'])
 def users():
-    return "Not implemented"    
+    return get_session().query(User).all()[0].to_json()   
 
 @app.route('/getUser/', methods=['POST'])
 def getUser():

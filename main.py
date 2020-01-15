@@ -1,6 +1,11 @@
 from flask import Flask
 from User import User
-from DBContext import get_session
+from Task import Task
+from Note import Note
+from TaskStatus import TaskStatus
+from DBContext import get_session, create_all
+
+create_all()
 
 app = Flask(__name__)
     

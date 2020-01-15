@@ -44,7 +44,7 @@ def createUser():
     
 @app.route('/userNotes/', methods=['POST'])
 def userNotes():
-    user = User(request.json)
+    user = User.get(request.json)
     result = get_session().query(Note).filter_by(userId = user.id).all() 
     response = []
     if len(result) > 0:
@@ -54,7 +54,7 @@ def userNotes():
     
 @app.route('/createNote/', methods=['POST'])
 def createNote():
-    note = Note(request.json)
+    note = Note.get(request.json)
     session = get_session()
     lastNote = session.guery(Note).odrer_by(Note.noteId).last()
     note.id = 1 if lastNote == None else lastNote.id + 1
@@ -64,7 +64,7 @@ def createNote():
     
 @app.route('/saveNote/', methods=['POST'])
 def saveNote():
-    note = Note(request.json)
+    note = Note.get(request.json)
     session = get_session()
     found = session.guery(Note).filter_by(noteId = note.noteId).first()
     if found != None:
@@ -82,7 +82,7 @@ def saveNote():
 def deleteNotes():
     session = get_session()
     for n in request.json:
-        note = Note(n)
+        note = Note.get(n)
         found = session.guery(Note).filter_by(noteId = note.noteId).first()
         if found != None:
             session.delete(found)
@@ -91,7 +91,7 @@ def deleteNotes():
     
 @app.route('/userTasks/', methods=['POST'])
 def usertasks():
-    user = User(request.json)
+    user = User.get(request.json)
     result = get_session().query(Task).filter_by(userId = user.id).all() 
     response = []
     if len(result) > 0:
@@ -101,7 +101,7 @@ def usertasks():
     
 @app.route('/createTask/', methods=['POST'])
 def createTask():
-    task = Task(request.json)
+    task = Task.get(request.json)
     session = get_session()
     lastTask = session.guery(Task).odrer_by(Task.taskId).last()
     task.id = 1 if lastTask == None else lasttask.id + 1
@@ -113,7 +113,7 @@ def createTask():
 def deleteTask():
     session = get_session()
     for t in request.json:
-        task = Task(t)
+        task = Task.get(t)
         found = session.guery(Task).filter_by(taskId = task.taskId).first()
         if found != None:
             session.delete(found)
@@ -122,7 +122,7 @@ def deleteTask():
     
 @app.route('/updateTask/', methods=['POST'])
 def updateTask():
-    task = Task(request.json)
+    task = Task.get(request.json)
     session = get_session()
     found = session.guery(Task).filter_by(taskId = task.taskId).first()
     if found != None:

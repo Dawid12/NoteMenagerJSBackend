@@ -23,8 +23,8 @@ def users():
 
 @app.route('/getUser/', methods=['POST'])
 def getUser():
-    user = User(request.json)
-    found = User(get_session().query(User).filter_by(login = user.login).first())
+    user = User.get(request.json)
+    found = get_session().query(User).filter_by(login = user.login).first()
     if found != None:
         salted = generate_salted_hash(user.password, found.salt)
         if salted == found.password:
@@ -33,12 +33,12 @@ def getUser():
     
 @app.route('/createUser/', methods=['POST'])
 def createUser():
-    user = User(request.json)
+    user = User.get(request.json)
     user.salt = get_salt()
     user.password = generate_salted_hash(user.password, user.salt)
     session = get_session()
     session.add(user)
-    user.id = User(session.query(User).filter_by(login = user.login).first()).id
+    user.id = session.query(User).filter_by(login = user.login).first().id
     session.flush()
     return json.dumps(user.to_dict())
     

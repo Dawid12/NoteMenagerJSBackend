@@ -9,3 +9,7 @@ class User(Model):
    salt = Column(String(256))
    email = Column(String(256))
    
+   def __init__(params):
+       #TODO
+       pass
+   

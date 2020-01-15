@@ -1,9 +1,11 @@
-from flask import Flask
+from flask import Flask, request
+import json
 from User import User
 from Task import Task
 from Note import Note
 from TaskStatus import TaskStatus
 from DBContext import get_session, create_all
+from common import generate_salted_hash, get_salt
 
 create_all()
 
@@ -11,15 +13,34 @@ app = Flask(__name__)
     
 @app.route('/users/', methods=['GET'])
 def users():
-    return get_session().query(User).all()[0].to_json()   
+    result = get_session().query(User).all() 
+    response = []
+    if len(result) > 0:
+        for u in result:
+            response.append(u.to_dict())
+        return json.dumps(response)
+    return json.dumps(User().to_dict())
 
 @app.route('/getUser/', methods=['POST'])
 def getUser():
-    return "Not implemented"  
+    user = User(request.json)
+    found = User(get_session().query(User).filter_by(login = user.login).first())
+    if found != None:
+        salted = generate_salted_hash(user.password, found.salt)
+        if salted == found.password:
+            return json.dumps(found.to_dict())
+    return json.dumps(User().to_dict())
     
 @app.route('/createUser/', methods=['POST'])
 def createUser():
-    return "Not implemented" 
+    user = User(request.json)
+    user.salt = get_salt()
+    user.password = generate_salted_hash(user.password, user.salt)
+    session = get_session()
+    session.add(user)
+    user.id = User(session.query(User).filter_by(login = user.login).first()).id
+    session.flush()
+    return json.dumps(user.to_dict())
     
 @app.route('/userNotes/', methods=['POST'])
 def userNotes():

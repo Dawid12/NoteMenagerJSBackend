@@ -91,23 +91,59 @@ def deleteNotes():
     
 @app.route('/userTasks/', methods=['POST'])
 def usertasks():
-    return "Not implemented" 
+    user = User(request.json)
+    result = get_session().query(Task).filter_by(userId = user.id).all() 
+    response = []
+    if len(result) > 0:
+        for n in result:
+            response.append(n.to_dict())
+    return json.dumps(response)
     
 @app.route('/createTask/', methods=['POST'])
 def createTask():
-    return "Not implemented" 
+    task = Task(request.json)
+    session = get_session()
+    lastTask = session.guery(Task).odrer_by(Task.taskId).last()
+    task.id = 1 if lastTask == None else lasttask.id + 1
+    session.add(task)
+    session.flush()
+    return json.dumps(task.to_dict())
     
 @app.route('/deleteTask/', methods=['POST'])
 def deleteTask():
-    return "Not implemented" 
+    session = get_session()
+    for t in request.json:
+        task = Task(t)
+        found = session.guery(Task).filter_by(taskId = task.taskId).first()
+        if found != None:
+            session.delete(found)
+    session.flush()
+    return True
     
 @app.route('/updateTask/', methods=['POST'])
 def updateTask():
-    return "Not implemented" 
+    task = Task(request.json)
+    session = get_session()
+    found = session.guery(Task).filter_by(taskId = task.taskId).first()
+    if found != None:
+        found.masterTaskId = task.masterTaskId
+        found.title = task.title
+        found.taskText = task.taskText
+        found.creationDate = task.creationDate
+        found.editionDate = task.editionDate
+        found.taskStatus = task.taskStatus
+        session.flush()
+        return True
+    return False
     
 @app.route('/getTaskStatuses/', methods=['POST'])
 def getTaskStatuses():
-    return "Not implemented" 
+    result = get_session().query(TaskStatus).all() 
+    response = []
+    if len(result) > 0:
+        for s in result:
+            response.append(s.to_dict())
+    return json.dumps(response)
     
 if __name__ == '__main__':
     app.run(debug=True)

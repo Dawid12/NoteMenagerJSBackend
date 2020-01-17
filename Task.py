@@ -14,7 +14,7 @@ class Task(Model):
    
    @staticmethod
    def get(params):
-       newTask = User()
+       newTask = Task()
        if "taskId" in params:
         newTask.taskId = params['taskId']
        if "userId" in params:

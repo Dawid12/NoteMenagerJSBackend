@@ -14,7 +14,7 @@ class Note(Model):
    
    @staticmethod
    def get(params):
-       newNote = User()
+       newNote = Note()
        if "noteId" in params:
         newNote.noteId = params['noteId']
        if "taskId" in params:

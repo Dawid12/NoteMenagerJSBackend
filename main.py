@@ -38,14 +38,14 @@ def createUser():
     user.password = generate_salted_hash(user.password, user.salt)
     session = get_session()
     session.add(user)
-    user.id = session.query(User).filter_by(login = user.login).first().id
+    user.userId = session.query(User).filter_by(login = user.login).first().userId
     session.flush()
     return json.dumps(user.to_dict())
     
 @app.route('/userNotes/', methods=['POST'])
 def userNotes():
     user = User.get(request.json)
-    result = get_session().query(Note).filter_by(userId = user.id).all() 
+    result = get_session().query(Note).filter_by(userId = user.userId).all() 
     response = []
     if len(result) > 0:
         for n in result:
@@ -56,17 +56,20 @@ def userNotes():
 def createNote():
     note = Note.get(request.json)
     session = get_session()
-    lastNote = session.guery(Note).odrer_by(Note.noteId).last()
-    note.id = 1 if lastNote == None else lastNote.id + 1
-    session.add(note)
-    session.flush()
+    lastNote = session.query(Note).order_by(Note.noteId.desc()).first()
+    note.noteId = 1 if lastNote == None else lastNote.noteId + 1
+    try:
+        session.add(note)
+        session.flush()
+    except:
+        note = Note()
     return json.dumps(note.to_dict())
     
 @app.route('/saveNote/', methods=['POST'])
 def saveNote():
     note = Note.get(request.json)
     session = get_session()
-    found = session.guery(Note).filter_by(noteId = note.noteId).first()
+    found = session.query(Note).filter_by(noteId = note.noteId).first()
     if found != None:
         found.masterNoteId = note.masterNoteId
         found.taskId = note.taskId
@@ -75,24 +78,24 @@ def saveNote():
         found.creationDate = note.creationDate
         found.editionDate = note.editionDate
         session.flush()
-        return True
-    return False
+        return json.dumps(True)
+    return json.dumps(False)
     
 @app.route('/deleteNotes/', methods=['POST'])
 def deleteNotes():
     session = get_session()
     for n in request.json:
         note = Note.get(n)
-        found = session.guery(Note).filter_by(noteId = note.noteId).first()
+        found = session.query(Note).filter_by(noteId = note.noteId).first()
         if found != None:
             session.delete(found)
     session.flush()
-    return True
+    return json.dumps(True)
     
 @app.route('/userTasks/', methods=['POST'])
 def usertasks():
     user = User.get(request.json)
-    result = get_session().query(Task).filter_by(userId = user.id).all() 
+    result = get_session().query(Task).filter_by(userId = user.userId).all() 
     response = []
     if len(result) > 0:
         for n in result:
@@ -103,10 +106,13 @@ def usertasks():
 def createTask():
     task = Task.get(request.json)
     session = get_session()
-    lastTask = session.guery(Task).odrer_by(Task.taskId).last()
-    task.id = 1 if lastTask == None else lasttask.id + 1
-    session.add(task)
-    session.flush()
+    lastTask = session.query(Task).order_by(Task.taskId.desc()).first()
+    task.taskId = 1 if lastTask == None else lastTask.taskId + 1
+    try:
+        session.add(task)
+        session.flush()
+    except:
+        task = Task()
     return json.dumps(task.to_dict())
     
 @app.route('/deleteTask/', methods=['POST'])
@@ -114,17 +120,17 @@ def deleteTask():
     session = get_session()
     for t in request.json:
         task = Task.get(t)
-        found = session.guery(Task).filter_by(taskId = task.taskId).first()
+        found = session.query(Task).filter_by(taskId = task.taskId).first()
         if found != None:
             session.delete(found)
     session.flush()
-    return True
+    return json.dumps(True)
     
 @app.route('/updateTask/', methods=['POST'])
 def updateTask():
     task = Task.get(request.json)
     session = get_session()
-    found = session.guery(Task).filter_by(taskId = task.taskId).first()
+    found = session.query(Task).filter_by(taskId = task.taskId).first()
     if found != None:
         found.masterTaskId = task.masterTaskId
         found.title = task.title
@@ -133,8 +139,8 @@ def updateTask():
         found.editionDate = task.editionDate
         found.taskStatus = task.taskStatus
         session.flush()
-        return True
-    return False
+        return json.dumps(True)
+    return json.dumps(False)
     
 @app.route('/getTaskStatuses/', methods=['POST'])
 def getTaskStatuses():

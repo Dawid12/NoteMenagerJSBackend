@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, Response
 import json
 from User import User
 from Task import Task
@@ -18,8 +18,8 @@ def users():
     if len(result) > 0:
         for u in result:
             response.append(u.to_dict())
-        return json.dumps(response)
-    return json.dumps(User().to_dict())
+        return Response(json.dumps(response), mimetype='application/json')
+    return Response(json.dumps(User().to_dict()), mimetype='application/json')
 
 @app.route('/getUser/', methods=['POST'])
 def getUser():
@@ -28,8 +28,8 @@ def getUser():
     if found != None:
         salted = generate_salted_hash(user.password, found.salt)
         if salted == found.password:
-            return json.dumps(found.to_dict())
-    return json.dumps(User().to_dict())
+            return Response(json.dumps(found.to_dict()), mimetype='application/json')
+    return Response(json.dumps(User().to_dict()), mimetype='application/json')
     
 @app.route('/createUser/', methods=['POST'])
 def createUser():
@@ -40,7 +40,7 @@ def createUser():
     session.add(user)
     user.userId = session.query(User).filter_by(login = user.login).first().userId
     session.flush()
-    return json.dumps(user.to_dict())
+    return Response(json.dumps(user.to_dict()), mimetype='application/json')
     
 @app.route('/userNotes/', methods=['POST'])
 def userNotes():
@@ -50,7 +50,7 @@ def userNotes():
     if len(result) > 0:
         for n in result:
             response.append(n.to_dict())
-    return json.dumps(response)
+    return Response(json.dumps(response), mimetype='application/json')
     
 @app.route('/createNote/', methods=['POST'])
 def createNote():
@@ -63,7 +63,7 @@ def createNote():
         session.flush()
     except:
         note = Note()
-    return json.dumps(note.to_dict())
+    return Response(json.dumps(note.to_dict()), mimetype='application/json')
     
 @app.route('/saveNote/', methods=['POST'])
 def saveNote():
@@ -78,8 +78,8 @@ def saveNote():
         found.creationDate = note.creationDate
         found.editionDate = note.editionDate
         session.flush()
-        return json.dumps(True)
-    return json.dumps(False)
+        return Response(json.dumps(True), mimetype='application/json')
+    return Response(json.dumps(False), mimetype='application/json')
     
 @app.route('/deleteNotes/', methods=['POST'])
 def deleteNotes():
@@ -90,7 +90,7 @@ def deleteNotes():
         if found != None:
             session.delete(found)
     session.flush()
-    return json.dumps(True)
+    return Response(json.dumps(True), mimetype='application/json')
     
 @app.route('/userTasks/', methods=['POST'])
 def usertasks():
@@ -100,7 +100,7 @@ def usertasks():
     if len(result) > 0:
         for n in result:
             response.append(n.to_dict())
-    return json.dumps(response)
+    return Response(json.dumps(response), mimetype='application/json')
     
 @app.route('/createTask/', methods=['POST'])
 def createTask():
@@ -113,7 +113,7 @@ def createTask():
         session.flush()
     except:
         task = Task()
-    return json.dumps(task.to_dict())
+    return Response(json.dumps(task.to_dict()), mimetype='application/json')
     
 @app.route('/deleteTask/', methods=['POST'])
 def deleteTask():
@@ -124,7 +124,7 @@ def deleteTask():
         if found != None:
             session.delete(found)
     session.flush()
-    return json.dumps(True)
+    return Response(json.dumps(True), mimetype='application/json')
     
 @app.route('/updateTask/', methods=['POST'])
 def updateTask():
@@ -139,8 +139,8 @@ def updateTask():
         found.editionDate = task.editionDate
         found.taskStatus = task.taskStatus
         session.flush()
-        return json.dumps(True)
-    return json.dumps(False)
+        return Response(json.dumps(True), mimetype='application/json')
+    return Response(json.dumps(False), mimetype='application/json')
     
 @app.route('/getTaskStatuses/', methods=['POST'])
 def getTaskStatuses():
@@ -149,7 +149,7 @@ def getTaskStatuses():
     if len(result) > 0:
         for s in result:
             response.append(s.to_dict())
-    return json.dumps(response)
+    return Response(json.dumps(response), mimetype='application/json')
     
 if __name__ == '__main__':
     app.run(debug=True)

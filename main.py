@@ -24,28 +24,29 @@ def users():
 @app.route('/getUser/', methods=['POST'])
 def getUser():
     user = User.get(request.json)
-    found = get_session().query(User).filter_by(login = user.login).first()
+    found = get_session().query(User).filter_by(Login = user.Login).first()
     if found != None:
-        salted = generate_salted_hash(user.password, found.salt)
-        if salted == found.password:
+        salted = generate_salted_hash(user.Password, found.Salt)
+        if salted == found.Password:
             return Response(json.dumps(found.to_dict()), mimetype='application/json')
     return Response(json.dumps(User().to_dict()), mimetype='application/json')
     
 @app.route('/createUser/', methods=['POST'])
 def createUser():
     user = User.get(request.json)
-    user.salt = get_salt()
-    user.password = generate_salted_hash(user.password, user.salt)
     session = get_session()
+    lastUser = session.query(User).order_by(User.UserId.desc()).first()
+    user.UserId = 1 if lastUser == None else lastUser.UserId + 1
+    user.Salt = get_salt()
+    user.Password = generate_salted_hash(user.Password, user.Salt)
     session.add(user)
-    user.userId = session.query(User).filter_by(login = user.login).first().userId
     session.flush()
     return Response(json.dumps(user.to_dict()), mimetype='application/json')
     
 @app.route('/userNotes/', methods=['POST'])
 def userNotes():
     user = User.get(request.json)
-    result = get_session().query(Note).filter_by(userId = user.userId).all() 
+    result = get_session().query(Note).filter_by(UserId = user.UserId).all() 
     response = []
     if len(result) > 0:
         for n in result:
@@ -56,8 +57,8 @@ def userNotes():
 def createNote():
     note = Note.get(request.json)
     session = get_session()
-    lastNote = session.query(Note).order_by(Note.noteId.desc()).first()
-    note.noteId = 1 if lastNote == None else lastNote.noteId + 1
+    lastNote = session.query(Note).order_by(Note.NoteId.desc()).first()
+    note.NoteId = 1 if lastNote == None else lastNote.NoteId + 1
     try:
         session.add(note)
         session.flush()
@@ -69,14 +70,14 @@ def createNote():
 def saveNote():
     note = Note.get(request.json)
     session = get_session()
-    found = session.query(Note).filter_by(noteId = note.noteId).first()
+    found = session.query(Note).filter_by(NoteId = note.NoteId).first()
     if found != None:
-        found.masterNoteId = note.masterNoteId
-        found.taskId = note.taskId
-        found.title = note.title
-        found.noteText = note.noteText
-        found.creationDate = note.creationDate
-        found.editionDate = note.editionDate
+        found.MasterNoteId = note.MasterNoteId
+        found.TaskId = note.TaskId
+        found.Title = note.Title
+        found.NoteText = note.NoteText
+        found.CreationDate = note.CreationDate
+        found.EditionDate = note.EditionDate
         session.flush()
         return Response(json.dumps(True), mimetype='application/json')
     return Response(json.dumps(False), mimetype='application/json')
@@ -86,7 +87,7 @@ def deleteNotes():
     session = get_session()
     for n in request.json:
         note = Note.get(n)
-        found = session.query(Note).filter_by(noteId = note.noteId).first()
+        found = session.query(Note).filter_by(NoteId = note.NoteId).first()
         if found != None:
             session.delete(found)
     session.flush()
@@ -95,7 +96,7 @@ def deleteNotes():
 @app.route('/userTasks/', methods=['POST'])
 def usertasks():
     user = User.get(request.json)
-    result = get_session().query(Task).filter_by(userId = user.userId).all() 
+    result = get_session().query(Task).filter_by(UserId = user.UserId).all() 
     response = []
     if len(result) > 0:
         for n in result:
@@ -106,8 +107,8 @@ def usertasks():
 def createTask():
     task = Task.get(request.json)
     session = get_session()
-    lastTask = session.query(Task).order_by(Task.taskId.desc()).first()
-    task.taskId = 1 if lastTask == None else lastTask.taskId + 1
+    lastTask = session.query(Task).order_by(Task.TaskId.desc()).first()
+    task.TaskId = 1 if lastTask == None else lastTask.TaskId + 1
     try:
         session.add(task)
         session.flush()
@@ -120,7 +121,7 @@ def deleteTask():
     session = get_session()
     for t in request.json:
         task = Task.get(t)
-        found = session.query(Task).filter_by(taskId = task.taskId).first()
+        found = session.query(Task).filter_by(TaskId = task.TaskId).first()
         if found != None:
             session.delete(found)
     session.flush()
@@ -130,14 +131,14 @@ def deleteTask():
 def updateTask():
     task = Task.get(request.json)
     session = get_session()
-    found = session.query(Task).filter_by(taskId = task.taskId).first()
+    found = session.query(Task).filter_by(TaskId = task.TaskId).first()
     if found != None:
-        found.masterTaskId = task.masterTaskId
-        found.title = task.title
-        found.taskText = task.taskText
-        found.creationDate = task.creationDate
-        found.editionDate = task.editionDate
-        found.taskStatus = task.taskStatus
+        found.MasterTaskId = task.MasterTaskId
+        found.Title = task.Title
+        found.TaskText = task.TaskText
+        found.CreationDate = task.CreationDate
+        found.EditionDate = task.EditionDate
+        found.TaskStatus = task.TaskStatus
         session.flush()
         return Response(json.dumps(True), mimetype='application/json')
     return Response(json.dumps(False), mimetype='application/json')

@@ -1,46 +1,48 @@
 from Model import Model
 from sqlalchemy import Column, BigInteger, String, DateTime
+from common import getIntDate, convertToDate
 
 class Task(Model):
    __tablename__ = 'task'
-   taskId = Column(BigInteger, primary_key=True)
-   userId = Column(BigInteger, nullable=False)
-   taskText = Column(String(256))
-   title = Column(String(256))
-   creationDate = Column(DateTime)
-   editionDate = Column(DateTime)
-   taskStatus = Column(BigInteger, nullable=False)
-   masterTaskId = Column(BigInteger, nullable=False)
+   TaskId = Column("taskId",BigInteger, primary_key=True)
+   UserId = Column("userId",BigInteger, nullable=False)
+   TaskText = Column("taskText",String(256))
+   Title = Column("title",String(256))
+   CreationDate = Column("creationDate",DateTime)
+   EditionDate = Column("editionDate",DateTime)
+   TaskStatus = Column("taskStatus",BigInteger, nullable=False)
+   MasterTaskId = Column("masterTaskId",BigInteger)
    
    @staticmethod
    def get(params):
        newTask = Task()
-       if "taskId" in params:
-        newTask.taskId = params['taskId']
-       if "userId" in params:
-        newTask.userId = params['userId']
-       if "taskText" in params:
-        newTask.taskText = params['taskText']
-       if "title" in params:
-        newTask.title = params['title']
-       if "creationDate" in params:
-        newTask.creationDate = params['creationDate']
-       if "editionDate" in params:
-        newTask.editionDate = params['editionDate']
-       if "taskStatus" in params:
-        newTask.taskStatus = params['taskStatus']
-       if "masterTaskId" in params:
-        newTask.masterTaskId = params['masterTaskId']
+       if "TaskId" in params:
+        newTask.TaskId = params['TaskId']
+       if "UserId" in params:
+        newTask.UserId = params['UserId']
+       if "TaskText" in params:
+        newTask.TaskText = params['TaskText']
+       if "Title" in params:
+        newTask.Title = params['Title']
+       if "CreationDate" in params:
+        newTask.CreationDate = convertToDate(params['CreationDate'])
+       if "EditionDate" in params:
+        newTask.EditionDate = convertToDate(params['EditionDate'])
+       if "TaskStatus" in params:
+        newTask.TaskStatus = params['TaskStatus']
+       if "MasterTaskId" in params:
+        newTask.MasterTaskId = params['MasterTaskId']
        return newTask
        
    def to_dict(self):
         result = {}
-        result['taskId']=self.taskId
-        result['userId']=self.userId
-        result['taskText']=self.taskText
-        result['title']=self.title
-        result['creationDate']=self.creationDate
-        result['editionDate']=self.editionDate
-        result['taskStatus']=self.taskStatus
-        result['masterTaskId']=self.masterTaskId
+        result['TaskId']=self.TaskId
+        result['UserId']=self.UserId
+        result['TaskText']=self.TaskText
+        result['Title']=self.Title
+        result['CreationDate']=str(getIntDate(self.CreationDate))
+        result['EditionDate']=str(getIntDate(self.EditionDate))
+        result['TaskStatus']=self.TaskStatus
+        result['MasterTaskId']=self.MasterTaskId
+        result['DeadlineDate']=None
         return result

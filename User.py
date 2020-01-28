@@ -3,31 +3,31 @@ from sqlalchemy import Column, BigInteger, String
 
 class User(Model):
    __tablename__ = 'user'
-   userId = Column('id',BigInteger, primary_key=True)
-   login = Column(String(50))
-   password = Column(String(256))
-   salt = Column(String(256))
-   email = Column(String(256))
+   UserId = Column('id',BigInteger, primary_key=True)
+   Login = Column("login",String(50))
+   Password = Column("password",String(256))
+   Salt = Column("salt",String(256))
+   Email = Column("email",String(256))
    
    @staticmethod
    def get(params):
        newUser = User()
-       if "userId" in params:
-        newUser.userId = params['userId']
-       if "login" in params:
-        newUser.login = params['login']
-       if "password" in params:
-        newUser.password = params['password']
-       if "salt" in params:
-        newUser.salt = params['salt']
-       if "email" in params:
-        newUser.email = params['email']
+       if "UserId" in params:
+        newUser.UserId = params['UserId']
+       if "Login" in params:
+        newUser.Login = params['Login']
+       if "Password" in params:
+        newUser.Password = params['Password']
+       if "Salt" in params:
+        newUser.Salt = params['Salt']
+       if "Email" in params:
+        newUser.Email = params['Email']
        return newUser
        
    def to_dict(self):
         result = {}
-        result['userId']=self.userId
-        result['login']=self.login
-        result['password']=self.password
-        result['email']=self.email
+        result['UserId']=self.UserId
+        result['Login']=self.Login
+        result['Password']=self.Password
+        result['Email']=self.Email
         return result
